@@ -30,10 +30,15 @@ public class LevelGenerator : MonoBehaviour
     public bool willGenerateLevel;
     [SerializeField] private GameObject tilePrefab;
     [SerializeField] private Sprite[] tileSprites;
+    [SerializeField] private GameObject pelletPrefab;
+    [SerializeField] private GameObject powerPelletPrefab;
+    [SerializeField] private GameObject pacstudentPrefab;
+    [SerializeField] private GameObject[] ghostPrefabs;
 
     // The basePoint is representative of the current top left corner of the grid
-    private Vector3 basePoint = new Vector3(6.3f, 3.3f, 1.0f);
+    private Vector3 basePoint = new Vector3(0.0f, 0.0f, 0.0f);
     private GameObject generatedLevel;
+    private Transform parentTransform;
     
     private int firstRow;
     private int lastRow;
@@ -55,6 +60,8 @@ public class LevelGenerator : MonoBehaviour
 
             // Build the whole level from the list
             BuildLevel();
+
+            PlaceCharacters();
         }
     }
 
@@ -106,7 +113,7 @@ public class LevelGenerator : MonoBehaviour
         generatedLevel = new GameObject();
         generatedLevel.name = "GeneratedLevel";
 
-        Transform parentTransform = generatedLevel.transform;
+        parentTransform = generatedLevel.transform;
         parentTransform.transform.position = basePoint;
         // Insert tiles as children of this game object
 
@@ -116,23 +123,34 @@ public class LevelGenerator : MonoBehaviour
             // i represents the column of the grid
             for (int i = 0; i < levelMapList[j].Count; i++)
             {
-                CreateNewTile(i, j, parentTransform);
+                CreateNewTile(i, j);
             }
         }
+        
+        PlaceCharacters();
     }
 
-    private void CreateNewTile(int i, int j, Transform parentTransform)
+    private void CreateNewTile(int i, int j)
     {
         // Create new tile
-        GameObject tile = Instantiate(tilePrefab);
+        GameObject tile = Instantiate(tilePrefab, parentTransform, true);
         
         // Set position on grid
-        tile.transform.SetParent(parentTransform);
         tile.transform.localPosition = new Vector3(i, -j, 0);
         
         // Set sprite of tile
         int spriteType = levelMapList[j][i];
         tile.GetComponent<SpriteRenderer>().sprite = tileSprites[spriteType];
+        
+        if (spriteType == 5)
+        {
+            GameObject pellet = Instantiate(pelletPrefab, parentTransform, true);
+            pellet.transform.localPosition = new Vector3(i, -j, -1);
+        } else if (spriteType == 6)
+        {
+            GameObject powerPellet = Instantiate(powerPelletPrefab, parentTransform, true);
+            powerPellet.transform.localPosition = new Vector3(i, -j, -1);
+        }
 
         // Handle different rotation cases (excluding 0, 5 and 6 as they are always the same rotation) 
         switch (spriteType)
@@ -285,5 +303,17 @@ public class LevelGenerator : MonoBehaviour
     private bool IsValidSprite(int sprite, int[] validSprites)
     {
         return Array.Exists(validSprites, validSprite => validSprite == sprite);
+    }
+    
+    private void PlaceCharacters()
+    {
+        GameObject pacstudent = Instantiate(pacstudentPrefab, parentTransform, true);
+        pacstudent.transform.position = new Vector3(1, 1, 0);
+
+        foreach (GameObject ghostPrefab in ghostPrefabs)
+        {
+            GameObject ghost = Instantiate(ghostPrefab, parentTransform, true);
+            ghost.transform.position = new Vector3(1, 1, 0);
+        }
     }
 }
