@@ -33,12 +33,15 @@ public class LevelGenerator : MonoBehaviour
     [SerializeField] private GameObject pelletPrefab;
     [SerializeField] private GameObject powerPelletPrefab;
     [SerializeField] private GameObject pacstudentPrefab;
+    private Vector2 pacstudentSpawnPoint = new Vector2(1, 1);
     [SerializeField] private GameObject[] ghostPrefabs;
+    private Vector2[] ghostSpawnPointArray = new []{ new Vector2(11, 13), new Vector2(16, 13), new Vector2(11, 15), new Vector2(16, 15) };
 
     // The basePoint is representative of the current top left corner of the grid
     private Vector3 basePoint = new Vector3(0.0f, 0.0f, 0.0f);
     private GameObject generatedLevel;
     private Transform parentTransform;
+    int ghostIndex;
     
     private int firstRow;
     private int lastRow;
@@ -141,15 +144,17 @@ public class LevelGenerator : MonoBehaviour
         // Set sprite of tile
         int spriteType = levelMapList[j][i];
         tile.GetComponent<SpriteRenderer>().sprite = tileSprites[spriteType];
+
+        bool isPacStudentSpawnPoint = i == 1 && j == 1;
         
-        if (spriteType == 5)
+        if (spriteType == 5 && !isPacStudentSpawnPoint)
         {
             GameObject pellet = Instantiate(pelletPrefab, parentTransform, true);
-            pellet.transform.localPosition = new Vector3(i, -j, -1);
+            pellet.transform.localPosition = new Vector3(i, -j, 0);
         } else if (spriteType == 6)
         {
             GameObject powerPellet = Instantiate(powerPelletPrefab, parentTransform, true);
-            powerPellet.transform.localPosition = new Vector3(i, -j, -1);
+            powerPellet.transform.localPosition = new Vector3(i, -j, -0.2f);
         }
 
         // Handle different rotation cases (excluding 0, 5 and 6 as they are always the same rotation) 
@@ -174,6 +179,19 @@ public class LevelGenerator : MonoBehaviour
                 HandleGhostGateRotation(i, j, tile);
                 break;
         }
+    }
+
+    private int? isGhostSpawnPoint(Vector2 coords)
+    {
+        for (int i = 0; i <= ghostSpawnPointArray.Length; i++)
+        {
+            if (coords == ghostSpawnPointArray[i])
+            {
+                return i;
+            }
+        }
+
+        return null;
     }
 
     private void HandleOuterCornerRotation(int i, int j, GameObject tile)
@@ -308,12 +326,13 @@ public class LevelGenerator : MonoBehaviour
     private void PlaceCharacters()
     {
         GameObject pacstudent = Instantiate(pacstudentPrefab, parentTransform, true);
-        pacstudent.transform.position = new Vector3(1, 1, 0);
+        pacstudent.transform.position = new Vector3(pacstudentSpawnPoint.x, -pacstudentSpawnPoint.y, -0.2f);
 
-        foreach (GameObject ghostPrefab in ghostPrefabs)
+        for (int i = 0; i <= ghostPrefabs.Length; i++)
         {
-            GameObject ghost = Instantiate(ghostPrefab, parentTransform, true);
-            ghost.transform.position = new Vector3(1, 1, 0);
+            GameObject ghost = Instantiate(ghostPrefabs[i], parentTransform, true);
+            Vector2 spawnPoint = ghostSpawnPointArray[i];
+            ghost.transform.position = new Vector3(spawnPoint.x, -spawnPoint.y, -0.2f);
         }
     }
 }
