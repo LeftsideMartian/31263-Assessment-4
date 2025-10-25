@@ -150,7 +150,7 @@ public class LevelGenerator : MonoBehaviour
         if (spriteType == 5 && !isPacStudentSpawnPoint)
         {
             GameObject pellet = Instantiate(pelletPrefab, parentTransform, true);
-            pellet.transform.localPosition = new Vector3(i, -j, 0);
+            pellet.transform.localPosition = new Vector3(i, -j, -0.2f);
         } else if (spriteType == 6)
         {
             GameObject powerPellet = Instantiate(powerPelletPrefab, parentTransform, true);
@@ -179,19 +179,6 @@ public class LevelGenerator : MonoBehaviour
                 HandleGhostGateRotation(i, j, tile);
                 break;
         }
-    }
-
-    private int? isGhostSpawnPoint(Vector2 coords)
-    {
-        for (int i = 0; i <= ghostSpawnPointArray.Length; i++)
-        {
-            if (coords == ghostSpawnPointArray[i])
-            {
-                return i;
-            }
-        }
-
-        return null;
     }
 
     private void HandleOuterCornerRotation(int i, int j, GameObject tile)
