@@ -2,11 +2,10 @@ using System;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-public class StartScreenAnimator : MonoBehaviour
+public class StartScreenUIManager : MonoBehaviour
 {
     [SerializeField] private RectTransform punchZone;
     [SerializeField] private GameObject pelletPrefab;
-    [SerializeField] private AudioController audioController;
     private Rect punchZoneRect;
     private GameObject pellet;
     private float timeOfLastPellet;
@@ -35,8 +34,13 @@ public class StartScreenAnimator : MonoBehaviour
         }
         pellet.transform.position = punchZone.TransformPoint(randomPoint);
         
-        audioController.PlaySoundEffect(AudioController.AudioAssetType.Punch);
+        AudioController.Instance.PlaySoundEffect(AudioController.AudioAssetType.Punch);
 
         timeOfLastPellet = Time.time;
+    }
+
+    public void HandleLevel1ButtonClick()
+    {
+        LoadManager.Instance.LoadLevel1();
     }
 }

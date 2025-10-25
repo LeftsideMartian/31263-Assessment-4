@@ -315,7 +315,7 @@ public class LevelGenerator : MonoBehaviour
         GameObject pacstudent = Instantiate(pacstudentPrefab, parentTransform, true);
         pacstudent.transform.position = new Vector3(pacstudentSpawnPoint.x, -pacstudentSpawnPoint.y, -0.2f);
 
-        for (int i = 0; i <= ghostPrefabs.Length; i++)
+        for (int i = 0; i < ghostPrefabs.Length; i++)
         {
             GameObject ghost = Instantiate(ghostPrefabs[i], parentTransform, true);
             Vector2 spawnPoint = ghostSpawnPointArray[i];

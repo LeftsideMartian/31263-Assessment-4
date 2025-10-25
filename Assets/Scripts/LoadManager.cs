@@ -3,16 +3,35 @@ using UnityEngine.SceneManagement;
 
 public class LoadManager : MonoBehaviour
 {
+    private int startSceneBuildIndex = 0;
     private int level1BuildIndex = 1;
+
+    public static LoadManager Instance { get; private set; }
+
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
+
+    public void LoadStartScene()
+    {
+        SceneManager.LoadScene(startSceneBuildIndex);
+        AudioController.Instance.ChangeBGM(AudioController.AudioAssetType.IntroBGM);
+    }
 
     public void LoadLevel1()
     {
         GameObject globalManagers = GameObject.FindWithTag("GlobalManager");
         DontDestroyOnLoad(globalManagers);
 
-        ManagerFinder.AudioController.ChangeBGM(AudioController.AudioAssetType.IntroBGM);
-        SceneManager.LoadScene(level1BuildIndex);
-        
-        // Change music
+        SceneManager.LoadSceneAsync(level1BuildIndex);
+        AudioController.Instance.ChangeBGM(AudioController.AudioAssetType.GhostNormalBGM);
     }
 }
