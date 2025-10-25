@@ -28,9 +28,18 @@ public class AudioController : MonoBehaviour
     [SerializeField] private AudioSource soundEffectAudioSource;
     [SerializeField] private AudioAsset[] audioAssets;
 
+    public static AudioController Instance { get; private set; }
+
     private void Awake()
     {
-        ManagerFinder.AudioController = this;
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
     }
 
     private void Start()
