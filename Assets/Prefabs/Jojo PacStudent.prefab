@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 2764625059312291565}
   - component: {fileID: 595015589938098535}
   - component: {fileID: 242702718207128310}
+  - component: {fileID: -2415201851633588855}
   m_Layer: 0
   m_Name: Jojo PacStudent
   m_TagString: Untagged
@@ -109,3 +110,18 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &-2415201851633588855
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7398677926821246069}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4de06e776223a9c4ba336b9138f10e33, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pacStudentAnimator: {fileID: 242702718207128310}
+  speed: 5
+  steppingSoundInterval: 1

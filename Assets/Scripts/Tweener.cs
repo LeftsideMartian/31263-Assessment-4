@@ -11,6 +11,20 @@ public class Tweener : MonoBehaviour
     private Tween[] tweenCycleArray = Array.Empty<Tween>();
     
     private float lerpStartTime;
+    
+    public static Tweener Instance { get; private set; }
+
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
 
     // Update is called once per frame
     void Update()
