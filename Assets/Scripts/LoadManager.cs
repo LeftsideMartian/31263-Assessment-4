@@ -24,6 +24,7 @@ public class LoadManager : MonoBehaviour
     {
         SceneManager.LoadScene(startSceneBuildIndex);
         AudioController.Instance.ChangeBGM(AudioController.AudioAssetType.IntroBGM);
+        AudioController.Instance.SoundEffectVolume = 0.2f;
     }
 
     public void LoadLevel1()
@@ -33,5 +34,6 @@ public class LoadManager : MonoBehaviour
 
         SceneManager.LoadSceneAsync(level1BuildIndex);
         AudioController.Instance.ChangeBGM(AudioController.AudioAssetType.GhostNormalBGM);
+        AudioController.Instance.SoundEffectVolume = 0.6f;
     }
 }

@@ -25,7 +25,7 @@ public class LevelGenerator : MonoBehaviour
     };
 
     // Store a list version of the 2D array for horizontal and vertical mirroring purposes
-    private List<List<int>> levelMapList;
+    public List<List<int>> levelMapList { get; set; }
 
     public bool willGenerateLevel;
     [SerializeField] private GameObject tilePrefab;
@@ -48,6 +48,20 @@ public class LevelGenerator : MonoBehaviour
     private int firstCol;
     private int lastCol;
     
+    public static LevelGenerator Instance { get; private set; }
+
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
+    
     // Start is called before the first frame update
     void Start()
     {
@@ -63,8 +77,6 @@ public class LevelGenerator : MonoBehaviour
 
             // Build the whole level from the list
             BuildLevel();
-
-            PlaceCharacters();
         }
     }
 
@@ -118,6 +130,9 @@ public class LevelGenerator : MonoBehaviour
 
         parentTransform = generatedLevel.transform;
         parentTransform.transform.position = basePoint;
+
+        PlaceCharacters();
+
         // Insert tiles as children of this game object
 
         // j represents the row of the grid
@@ -129,8 +144,6 @@ public class LevelGenerator : MonoBehaviour
                 CreateNewTile(i, j);
             }
         }
-        
-        PlaceCharacters();
     }
 
     private void CreateNewTile(int i, int j)
@@ -147,15 +160,15 @@ public class LevelGenerator : MonoBehaviour
 
         bool isPacStudentSpawnPoint = i == 1 && j == 1;
         
-        if (spriteType == 5 && !isPacStudentSpawnPoint)
-        {
-            GameObject pellet = Instantiate(pelletPrefab, parentTransform, true);
-            pellet.transform.localPosition = new Vector3(i, -j, -0.2f);
-        } else if (spriteType == 6)
-        {
-            GameObject powerPellet = Instantiate(powerPelletPrefab, parentTransform, true);
-            powerPellet.transform.localPosition = new Vector3(i, -j, -0.2f);
-        }
+        // if (spriteType == 5 && !isPacStudentSpawnPoint)
+        // {
+        //     GameObject pellet = Instantiate(pelletPrefab, parentTransform, true);
+        //     pellet.transform.localPosition = new Vector3(i, -j, -0.2f);
+        // } else if (spriteType == 6)
+        // {
+        //     GameObject powerPellet = Instantiate(powerPelletPrefab, parentTransform, true);
+        //     powerPellet.transform.localPosition = new Vector3(i, -j, -0.2f);
+        // }
 
         // Handle different rotation cases (excluding 0, 5 and 6 as they are always the same rotation) 
         switch (spriteType)
