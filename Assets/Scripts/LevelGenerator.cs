@@ -25,20 +25,42 @@ public class LevelGenerator : MonoBehaviour
     };
 
     // Store a list version of the 2D array for horizontal and vertical mirroring purposes
-    private List<List<int>> levelMapList;
+    public List<List<int>> levelMapList { get; set; }
 
     public bool willGenerateLevel;
     [SerializeField] private GameObject tilePrefab;
     [SerializeField] private Sprite[] tileSprites;
+    [SerializeField] private GameObject pelletPrefab;
+    [SerializeField] private GameObject powerPelletPrefab;
+    [SerializeField] private GameObject pacstudentPrefab;
+    private Vector2 pacstudentSpawnPoint = new Vector2(1, 1);
+    [SerializeField] private GameObject[] ghostPrefabs;
+    private Vector2[] ghostSpawnPointArray = new []{ new Vector2(11, 13), new Vector2(16, 13), new Vector2(11, 15), new Vector2(16, 15) };
 
     // The basePoint is representative of the current top left corner of the grid
-    private Vector3 basePoint = new Vector3(6.3f, 3.3f, 1.0f);
+    private Vector3 basePoint = new Vector3(0.0f, 0.0f, 0.0f);
     private GameObject generatedLevel;
+    private Transform parentTransform;
+    int ghostIndex;
     
     private int firstRow;
     private int lastRow;
     private int firstCol;
     private int lastCol;
+    
+    public static LevelGenerator Instance { get; private set; }
+
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
     
     // Start is called before the first frame update
     void Start()
@@ -106,8 +128,11 @@ public class LevelGenerator : MonoBehaviour
         generatedLevel = new GameObject();
         generatedLevel.name = "GeneratedLevel";
 
-        Transform parentTransform = generatedLevel.transform;
+        parentTransform = generatedLevel.transform;
         parentTransform.transform.position = basePoint;
+
+        PlaceCharacters();
+
         // Insert tiles as children of this game object
 
         // j represents the row of the grid
@@ -116,23 +141,34 @@ public class LevelGenerator : MonoBehaviour
             // i represents the column of the grid
             for (int i = 0; i < levelMapList[j].Count; i++)
             {
-                CreateNewTile(i, j, parentTransform);
+                CreateNewTile(i, j);
             }
         }
     }
 
-    private void CreateNewTile(int i, int j, Transform parentTransform)
+    private void CreateNewTile(int i, int j)
     {
         // Create new tile
-        GameObject tile = Instantiate(tilePrefab);
+        GameObject tile = Instantiate(tilePrefab, parentTransform, true);
         
         // Set position on grid
-        tile.transform.SetParent(parentTransform);
         tile.transform.localPosition = new Vector3(i, -j, 0);
         
         // Set sprite of tile
         int spriteType = levelMapList[j][i];
         tile.GetComponent<SpriteRenderer>().sprite = tileSprites[spriteType];
+
+        bool isPacStudentSpawnPoint = i == 1 && j == 1;
+        
+        // if (spriteType == 5 && !isPacStudentSpawnPoint)
+        // {
+        //     GameObject pellet = Instantiate(pelletPrefab, parentTransform, true);
+        //     pellet.transform.localPosition = new Vector3(i, -j, -0.2f);
+        // } else if (spriteType == 6)
+        // {
+        //     GameObject powerPellet = Instantiate(powerPelletPrefab, parentTransform, true);
+        //     powerPellet.transform.localPosition = new Vector3(i, -j, -0.2f);
+        // }
 
         // Handle different rotation cases (excluding 0, 5 and 6 as they are always the same rotation) 
         switch (spriteType)
@@ -285,5 +321,18 @@ public class LevelGenerator : MonoBehaviour
     private bool IsValidSprite(int sprite, int[] validSprites)
     {
         return Array.Exists(validSprites, validSprite => validSprite == sprite);
+    }
+    
+    private void PlaceCharacters()
+    {
+        GameObject pacstudent = Instantiate(pacstudentPrefab, parentTransform, true);
+        pacstudent.transform.position = new Vector3(pacstudentSpawnPoint.x, -pacstudentSpawnPoint.y, -0.2f);
+
+        for (int i = 0; i < ghostPrefabs.Length; i++)
+        {
+            GameObject ghost = Instantiate(ghostPrefabs[i], parentTransform, true);
+            Vector2 spawnPoint = ghostSpawnPointArray[i];
+            ghost.transform.position = new Vector3(spawnPoint.x, -spawnPoint.y, -0.2f);
+        }
     }
 }
