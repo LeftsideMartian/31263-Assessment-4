@@ -12,9 +12,13 @@ public class PacStudentController : MonoBehaviour
 
     private string currentAnimationState = IDLE_SIDE;
     
+    // Components
     private Animator pacStudentAnimator;
-    
     private Transform pacStudentTransform;
+    private ParticleSystem pacStudentParticleSystem;
+    private Tweener tweener;
+
+    private bool isMoving;
     private KeyCode currentInput;
     private KeyCode lastInput;
 
@@ -28,6 +32,8 @@ public class PacStudentController : MonoBehaviour
     {
         pacStudentAnimator = gameObject.GetComponent<Animator>();
         pacStudentTransform = gameObject.transform;
+        pacStudentParticleSystem = gameObject.GetComponent<ParticleSystem>();
+        tweener = gameObject.GetComponent<Tweener>();
     }
 
     void Update()
@@ -36,9 +42,8 @@ public class PacStudentController : MonoBehaviour
         GetInput();
         
         // If currently lerping, exit
-        if (Tweener.Instance.IsTweenActive())
+        if (tweener.IsTweenActive())
         {
-            pacStudentAnimator.SetBool("isMoving", true);
             return;
         }
 
@@ -46,18 +51,15 @@ public class PacStudentController : MonoBehaviour
         {
             UpdateCurrentInput();
             MovePlayer(lastInput);
-            
+        
         } else if (IsTileWalkable(currentInput))
         {
             MovePlayer(currentInput);
         }
         else
         {
-            UpdateAnimationState(false, lastInput);
+            isMoving = false;
         }
-
-        HandleAnimations(lastInput);
-        HandleAudio();
     }
 
     private void GetInput()
@@ -142,22 +144,26 @@ public class PacStudentController : MonoBehaviour
 
     private void MovePlayer(KeyCode input)
     {
-        UpdateAnimationState(true, input);
+        isMoving = true;
 
         Vector2Int newCoords = GetNextTileCoords(input);
 
         float lerpDuration = 2 / speed;
 
-        Tweener.Instance.SetActiveTween(new Tween(
+        tweener.SetActiveTween(new Tween(
             pacStudentTransform,
             pacStudentTransform.position,
             new Vector3(newCoords.x, newCoords.y, 0),
             Time.time,
             lerpDuration
             ));
+
+        HandleAnimations(currentInput);
+        HandleAudio();
+        HandleParticles();
     }
 
-    private void UpdateAnimationState(bool isMoving, KeyCode input)
+    private void UpdateAnimationState(KeyCode input)
     {
         if (isMoving)
         {
@@ -198,6 +204,7 @@ public class PacStudentController : MonoBehaviour
     
     private void HandleAnimations(KeyCode input)
     {
+        UpdateAnimationState(input);
         pacStudentAnimator.Play(currentAnimationState);
 
         // If moving left, flip horizontally
@@ -216,10 +223,26 @@ public class PacStudentController : MonoBehaviour
 
     private void HandleAudio()
     {
+        if (AudioController.Instance == null)
+        {
+            return;
+        }
+        
+        if (!isMoving)
+        {
+            return;
+        }
+
         if (Time.time - lastSteppingSoundTime >= steppingSoundInterval)
         {
             AudioController.Instance.PlaySoundEffect(AudioController.AudioAssetType.PacWalking);
             lastSteppingSoundTime = Time.time;
         }
+    }
+
+    private void HandleParticles()
+    {
+        var emission = pacStudentParticleSystem.emission;
+        emission.enabled = isMoving;
     }
 }

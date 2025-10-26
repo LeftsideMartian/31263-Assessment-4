@@ -28,6 +28,14 @@ public class AudioController : MonoBehaviour
     [SerializeField] private AudioSource soundEffectAudioSource;
     [SerializeField] private AudioAsset[] audioAssets;
 
+    public float MainVolume
+    {
+        set => mainAudioSource.volume = value;
+    }
+    public float SoundEffectVolume {
+        set => soundEffectAudioSource.volume = value;
+    }
+
     public static AudioController Instance { get; private set; }
 
     private void Awake()
